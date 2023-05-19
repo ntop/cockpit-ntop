@@ -3097,7 +3097,7 @@ ac_config_files="$ac_config_files Makefile"
 
 TODAY=`date +%y%m%d`
 
-NBOXUI_VERSION=3.9
+NBOXUI_VERSION=4.0
 PACKAGE_VERSION=$NBOXUI_VERSION.$TODAY
 
 MACHINE=`uname -m`
