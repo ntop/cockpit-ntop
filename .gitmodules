@@ -1,4 +1,4 @@
 [submodule "dist"]
 	path = dist
 	url = https://github.com/ntop/cockpit-ntop-dist.git
-	branch=dev
+	branch=4.0-stable
