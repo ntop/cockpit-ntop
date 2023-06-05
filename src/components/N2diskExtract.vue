@@ -283,8 +283,8 @@ async function addTask() {
 	const task_info = {
 		creation_time: Date.now()/1000,
 		timelines: selectedTimelines.value,
-		from_time: timeInterval.value[0],
-		to_time: timeInterval.value[1],
+		from_time: timeInterval.value[0]/1000,
+		to_time: timeInterval.value[1]/1000,
 		filter: bpfFilter.value.value,
 		folder: storagePath.value.value,
 		max_file_size: fileSize.value
