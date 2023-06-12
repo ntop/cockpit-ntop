@@ -72,8 +72,8 @@ binary-arch: build install
 	# Navigator
 	cp -rpf ../../cockpit-navigator/navigator ./debian/nboxui/usr/share/cockpit/
 	# Branding
-	mkdir -p ./debian/nboxui/usr/share/cockpit/branding/ubuntu
-	cp -vr ../../branding/* ./debian/nboxui/usr/share/cockpit/branding/ubuntu/
+	#mkdir -p ./debian/nboxui/usr/share/cockpit/branding/ubuntu
+	#cp -vr ../../branding/* ./debian/nboxui/usr/share/cockpit/branding/ubuntu/
 	# Preferences
 	mkdir -p ./debian/nboxui/usr/share/cockpit/nbox-preferences
 	cp -vr ../../plugins/nbox-preferences/manifest.json ./debian/nboxui/usr/share/cockpit/nbox-preferences/
