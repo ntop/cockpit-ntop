@@ -5,12 +5,15 @@
 	<div class="row">
 		<div class="col-sm">
 			<TSChart height="120px" name="Traffic Rate" :series="chart1Series" unit="bps"></TSChart>
+			<small class="text-muted stats-info">Actual Throughput: <span>{{ actual_throughput }}</span></small>
 		</div>
 		<div class="col-sm">
 			<TSChart height="120px" name="Packet Loss" :series="chart3Series" unit="pps"></TSChart>
+			<small class="text-muted stats-info">Total Packet Loss: <span>{{ total_loss }}</span></small>
 		</div>
 		<div class="col-sm">
 			<TSChart height="120px" name="I/O Throughput" :series="chart2Series" unit="bps"></TSChart>
+			<small class="text-muted stats-info">Service Uptime: <span>{{ service_uptime }}</span></small>
 		</div>
 	</div>
 </div>
@@ -122,7 +125,7 @@
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import { useToast } from "vue-toastification";
-import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidPath, createPath } from "../functions";
+import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidPath, createPath, getServicePID, getServiceStats } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Slider from '@vueform/slider'
 import Toggle from '@vueform/toggle'
@@ -193,10 +196,15 @@ const interfaceModalInvalidInterfaceName = ref(false)
 const interfacesList = ref([]);
 
 /* Charts */
-const chartsAvailable = ref(false);
+const chartsAvailable = ref(stubMode() ? true : false);
 const chart1Series = ref([{ name: 'RXBytes', data: [] }])
 const chart2Series = ref([{ name: 'IOBytes', data: [] }])
 const chart3Series = ref([{ name: 'Drops', data: [] }])
+
+/* Live Info */
+const actual_throughput = ref("");
+const total_loss = ref("");
+const service_uptime = ref("");
 
 function formatPercentage(value) {
 	return Math.round(value) + "%";
@@ -500,6 +508,16 @@ async function saveConfiguration() {
 
 async function updateCharts() {
 	if (stubMode()) {
+		let sample_data = [];
+		sample_data.push({ x: (Date.now()-10000), y: 10 });
+		sample_data.push({ x: (Date.now()), y: 20 });
+
+		chart1Series.value[0].data = sample_data;
+		chart2Series.value[0].data = sample_data;
+		chart3Series.value[0].data = sample_data;
+
+		chartsAvailable.value = true;
+
 		return;
 	}
 
@@ -523,6 +541,11 @@ async function updateCharts() {
 		chart3Series.value[0].data = data['droppedPkts'];
 
 		chartsAvailable.value = true;
+
+		let stats = await getServiceStats(serviceName, props.name);
+		actual_throughput.value = stats["Throughput"] ? stats["Throughput"] : "";
+		total_loss.value =        stats["Dropped"]    ? stats["Dropped"]    : "";
+		service_uptime.value =    stats["Duration"]   ? stats["Duration"]   : "";
 	}
 }
 

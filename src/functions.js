@@ -1,7 +1,17 @@
 
+/********************************/
+/*********** Testing ************/
+
 export function stubMode() {
 	return false;
 }
+
+export function testComponent() {
+	return "n2disk";
+}
+
+/********************************/
+/********************************/
 
 export function isValidInterfaceName(str) {
 	var pattern = new RegExp('^([a-z\\d-:@,]*[a-z\\d:@,])*$','i');
@@ -161,6 +171,80 @@ export async function isServiceEnabled(name, instance) {
 	});
 
 	return enabled;
+}
+
+export async function getServicePID(name, instance) {
+	let pid = "";
+
+	if (instance) {
+		name = name + "@" + instance;
+	}
+
+	var proc = await cockpit.spawn(["systemctl", "show", "--property", "MainPID", "--value", name])
+	.then(function (data) { 
+		if (data)
+			pid = data.trim();
+	})
+	.catch(function (exception) {
+		//console.log("getServicePID exception");
+		//console.log(exception);
+	});
+
+	return pid;
+}
+
+export async function listFiles(folder_path) {
+	let list = [];
+
+	var proc = await cockpit.spawn(["ls", folder_path])
+	.then(function (data) { 
+		if (data)
+			list = data.split(/[\r\n]+/);
+	})
+	.catch(function (exception) {
+		//console.log("getServicePID exception");
+		//console.log(exception);
+	});
+
+	return list;
+}
+
+export async function getServiceStats(name, instance) {
+	let stats = {};
+
+	let pid = await getServicePID(name, instance);
+
+	if (!pid) {
+		return stats;
+	}
+
+	let stats_files = await listFiles("/proc/net/pf_ring/stats/");
+
+	var file_index = stats_files.findIndex((name) => { 
+		return name.startsWith(pid + "-");
+	}, pid);
+
+	if (file_index < 0) {
+		return stats;
+	}
+
+	var proc = await cockpit.spawn(["cat", "/proc/net/pf_ring/stats/" + stats_files[file_index]])
+	.then(function (data) { 
+		if (data) {
+			let lines = data.split(/[\r\n]+/);
+			lines.forEach((x) => {
+				let [first, ...rest] = x.split(':');
+				rest = rest.join(':').trim();
+				stats[first] = rest;
+			});
+		}
+	})
+	.catch(function (exception) {
+		//console.log("getServiceStats exception");
+		//console.log(exception);
+	});
+
+	return stats;
 }
 
 export async function toggleService(name, enable, instance) {

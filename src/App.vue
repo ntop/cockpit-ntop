@@ -18,6 +18,7 @@ import N2disk from './components/N2disk.vue'
 import Cento  from './components/Cento.vue'
 import Cluster  from './components/Cluster.vue'
 import Preferences  from './components/Preferences.vue'
+import { stubMode, testComponent } from "./functions";
 
 const product = ref('')
 
@@ -34,8 +35,10 @@ onBeforeMount(async () => {
 		product.value = 'cento';
 	else if (pathname.includes('/cluster/'))
 		product.value = 'cluster';
-	else
+	else if (pathname.includes('/nbox-preferences/'))
 		product.value = 'preferences';
+	else
+		product.value = testComponent();
 });
 
 </script>
