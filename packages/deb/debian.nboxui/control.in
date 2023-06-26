@@ -8,7 +8,7 @@ Build-Conflicts:
 
 Package: nboxui
 Architecture: all
-Depends: cockpit, rrdtool, nodejs, @EXTRA_DEPS@
+Depends: cockpit, rrdtool, nodejs, redis-server, @EXTRA_DEPS@
 Recommends: 
 #Recommends: cockpit-navigator
 Suggests:
