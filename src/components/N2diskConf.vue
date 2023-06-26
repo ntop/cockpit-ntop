@@ -9,7 +9,7 @@
 		</div>
 		<div class="col-sm">
 			<TSChart height="120px" name="Packet Loss" :series="chart3Series" unit="pps"></TSChart>
-			<small class="text-muted stats-info">Total Packet Loss: <span>{{ total_loss }}</span></small>
+			<small class="text-muted stats-info">Packet Loss Since Service Startup: <span>{{ total_loss }}</span></small>
 		</div>
 		<div class="col-sm">
 			<TSChart height="120px" name="I/O Throughput" :series="chart2Series" unit="bps"></TSChart>
