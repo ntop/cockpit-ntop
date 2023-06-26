@@ -12,7 +12,7 @@ function pad2(n) {
 }
 
 function format_epoch(timestamp) {
-	const date = new Date(timestamp);
+	const date = new Date(timestamp*1000);
 	const year = date.getFullYear();
 	const month = date.getMonth() + 1;
 	const day = date.getDate();
@@ -108,7 +108,11 @@ async function dequeue_tasks() {
 				command.push('"' + info.filter + '"');
 			}
 
-			const output = await exec(command.join(' '));
+			let cmd = command.join(' ');
+
+			console.log("Running " + cmd);
+
+			const output = await exec(cmd);
 
 			new_status = 'completed';
 		}
