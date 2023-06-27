@@ -28,8 +28,25 @@ export function isValidPath(path) {
 	return pattern.test(path);
 }
 
-export function isValidFilter(filter) {
-	return true; //TODO
+export async function isValidFilter(filter) {
+	let valid = false;
+	let instances = [];
+
+	var out = await cockpit.spawn(["npcapextract", "-c", "1", "-f", filter])
+	.then(function (data) { 
+		if (data) {
+			let json = JSON.parse(data);
+			if (json.level >= 0) {
+				valid = true;
+			}
+		}
+	})
+	.catch(function (exception) {
+		console.log("Unable check or bad filter: " + filter);
+		console.log(exception);
+	});
+
+	return valid;
 }
 
 export function isEndpoint(str) {

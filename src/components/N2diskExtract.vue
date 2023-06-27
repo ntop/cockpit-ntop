@@ -271,7 +271,7 @@ function taskInfoToTableData(id, status, info) {
 
 /* Add a new task to the scheduler */
 async function addTask() {
-	onConfigChange({}, true);
+	await onConfigChange({}, true);
 
 	if (!validationOk.value)
 		return;
@@ -378,7 +378,7 @@ onBeforeMount(async () => {
 	timelinesList.value = timeline_paths
 });
 
-function onConfigChange(e, checkEmpty) {
+async function onConfigChange(e, checkEmpty) {
 	/* Reset */
 	invalidTimelines.value = false;
 	invalidStoragePath.value = false;
@@ -408,8 +408,11 @@ function onConfigChange(e, checkEmpty) {
 	}
 
 	const filter = bpfFilter.value.value;
-	if (filter && !isValidFilter) {
-		invalidFilter.value = true;
+	if (filter) {
+		let valid = await isValidFilter(filter);
+		if (!valid) {
+			invalidFilter.value = true;
+		}
 	}
 
 	/* Update global validation flag */
