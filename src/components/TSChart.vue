@@ -115,7 +115,10 @@ const chartOptions = ref({
 	},
 	xaxis: {
 		type: 'datetime',
-		tickAmount: 6
+		tickAmount: 6,
+		labels: {
+			datetimeUTC: false
+		}
 	},
 	yaxis: {
 		labels: {
