@@ -112,7 +112,13 @@ async function dequeue_tasks() {
 
 			console.log("Running " + cmd);
 
-			const output = await exec(cmd);
+			try {
+				const output = await exec(cmd);
+				console.log(output);
+			} catch (error) {
+				console.log("Extraction failure");
+				console.error(error);
+			}
 
 			new_status = 'completed';
 		}
