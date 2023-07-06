@@ -83,6 +83,23 @@ export async function getTaskStatus(id) {
 	return status;
 }
 
+/* Get task status */
+export async function getTaskOutput(id) {
+	const output = await redis('HGET', 'nbox.tasks:' + id, 'output');
+	if (output.length == 0)
+		return {};
+
+	const json = atob(output);
+	if (!json)
+		return {};
+
+	const data = JSON.parse(json);
+	if (!data)
+		return {};
+
+	return data;
+}
+
 /* Set task status */
 export async function setTaskStatus(id, status) {
 	await redis('HSET', 'nbox.tasks:' + id, 'status', status);
@@ -102,10 +119,12 @@ export async function getAllTasks() {
 	for (const id of list) {
 		const status = await getTaskStatus(id);
 		const info = await getTaskInfo(id);
+		const output = await getTaskOutput(id);
 		tasks.push({
 			id: id,
 			status: status,
 			info: info,
+			output: output,
 		});
 	}
 	return tasks;

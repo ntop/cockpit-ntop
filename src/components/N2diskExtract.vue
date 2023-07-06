@@ -40,6 +40,7 @@
 <div class="d-none" id="icon-delete"    ><font-awesome-icon icon="fa-solid fa-trash"                class="text-secondary" /></div>
 <div class="d-none" id="icon-folder"    ><font-awesome-icon icon="fa-solid fa-folder-open"          class="text-secondary" /></div>
 <div class="d-none" id="icon-logs"      ><font-awesome-icon icon="fa-solid fa-scroll"               class="text-secondary" /></div>
+<div class="d-none" id="icon-info"      ><font-awesome-icon icon="fa-solid fa-circle-info"          class="text-secondary" /></div>
 
 <!--  New Task Modal -->
 <Modal ref="createTaskModal">
@@ -104,7 +105,7 @@
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import { stubMode, isEndpoint, isIPPort, readConfigurationFile, parseConfiguration, writeConfigurationFile, isValidPath, isValidFilter, createPath, getConfigurationFileList } from "../functions";
-import { createTask, getAllTasks, deleteTask, getTaskInfo, getTaskStatus, setTaskStatus } from "../tasks.js"
+import { createTask, getAllTasks, deleteTask, getTaskInfo, getTaskStatus, setTaskStatus, getTaskOutput } from "../tasks.js"
 import Multiselect from '@vueform/multiselect'
 import Slider from '@vueform/slider'
 import Toggle from '@vueform/toggle'
@@ -150,17 +151,40 @@ function getIcon(name) {
 	return elem.innerHTML;
 }
 
+function getStatusMessage(status, output) {
+	if (status == 'completed' || status == 'processed') {
+		if (output) {
+			const elem = document.getElementById("icon-info");
+			if (!elem) return '';
+
+			let title = '';
+			if (output.error) {
+				title = output.error;
+			} else if (output.warning) {
+				title = output.warning;
+			} else if (output.num_dumped_pkts != null && output.num_dumped_files != null) {
+				title = output.num_dumped_pkts + ' packets matched the filter, ' + output.num_dumped_files + ' files extracted';
+			}
+			if (!title)
+				return '';
+
+			return '<span title="' + title + '">' + elem.innerHTML + '</span>';
+		}
+	}
+	return '';
+}
+
 const tasksTableColumns = ref([
 	{
 		data: 'id',
 	},
 	{
 		data: 'status',
-		render: function (data, type) {
+		render: function (data, type, row) {
 			if (type === 'display') {
 				let icon = getIcon(data);
 				let label = data.charAt(0).toUpperCase() + data.slice(1);
-				return icon + ' ' + label;
+				return icon + ' ' + label + ' ' + getStatusMessage(data, row.output);
 			}
 			return data;
 		},
@@ -256,10 +280,11 @@ function formatSize(value) {
 }
 
 /* Convert task information into datatable format */
-function taskInfoToTableData(id, status, info) {
+function taskInfoToTableData(id, status, info, output) {
 	return {
 		id: id,
 		status: status,
+		output: output, /* JSON data */
 		creation: info.creation_time,
 		from_time: info.from_time,
 		to_time: info.to_time,
@@ -291,7 +316,7 @@ async function addTask() {
 	};
 	const id = await createTask(task_info);
 
-	await updateTasks(); /* tasksTableData.value.unshift(taskInfoToTableData(id, "pending", task_info)); */
+	await updateTasks(); /* tasksTableData.value.unshift(taskInfoToTableData(id, "pending", task_info, {})); */
 
 	toast.success("Extraction scheduled!");
 }
@@ -337,7 +362,7 @@ async function updateTasks() {
 	const tasks = await getAllTasks(); 
 
 	const tasks_data = tasks.map((task) => {
-		return taskInfoToTableData(task.id, task.status, task.info);
+		return taskInfoToTableData(task.id, task.status, task.info, task.output);
 	});
 
 	tasksTableData.value = tasks_data;

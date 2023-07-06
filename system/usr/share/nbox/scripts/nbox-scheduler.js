@@ -49,6 +49,13 @@ async function set_task_status(id, status) {
 	await redis('HSET', 'nbox.tasks:' + id, 'status', status);
 }
 
+/* Set task output */
+async function set_task_output(id, output) {
+	let base64data = Buffer.from(output).toString('base64');
+
+	await redis('HSET', 'nbox.tasks:' + id, 'output', base64data);
+}
+
 /* Get task info */
 async function get_task_info(id) {
 	const info = await redis('HGET', 'nbox.tasks:' + id, 'info');
@@ -108,13 +115,19 @@ async function dequeue_tasks() {
 				command.push('"' + info.filter + '"');
 			}
 
+			command.push('-j'); /* json output */
+
 			let cmd = command.join(' ');
 
 			console.log("Running " + cmd);
 
 			try {
 				const output = await exec(cmd);
+
 				console.log(output);
+
+				await set_task_output(task_id, output.stdout);
+
 				new_status = 'completed';
 			} catch (error) {
 				console.error(error);
