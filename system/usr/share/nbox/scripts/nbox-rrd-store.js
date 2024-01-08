@@ -43,7 +43,9 @@ async function get_service_stats(pid) {
 			});
 		}
 	} catch (error) {
-		console.error(error);
+		if (debug) {
+			console.error(error);
+		}
 	}
 	return stats
 }
