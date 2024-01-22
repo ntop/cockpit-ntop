@@ -2,4 +2,25 @@
 
 set -e
 
+case "$1" in
+    remove)
+	# continue below
+    ;;
+    purge|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+	# continue below
+    ;;
+    *)
+        echo "postrm called with unknown argument \`\$1'" >&2
+        exit 0
+    ;;
+esac
+
+# SNMPd
+
+if [ -f /etc/snmp/snmpd.conf.bkp ]; then
+    rm -f /etc/snmp/snmpd.conf
+    mv /etc/snmp/snmpd.conf.bkp /etc/snmp/snmpd.conf
+    systemctl restart snmpd
+fi
+
 exit 0

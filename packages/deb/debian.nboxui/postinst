@@ -35,4 +35,13 @@ systemctl restart nbox-scheduler
 systemctl enable nbox-rrd.service > /dev/null
 systemctl restart nbox-rrd
 
+# SNMPd
+if [ -f /etc/snmp/snmpd.conf ]; then
+    mv /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.bkp
+    ln -s /etc/snmp/snmpd.conf.nbox /etc/snmp/snmpd.conf
+    /etc/init.d/snmpd restart
+fi
+systemctl enable snmpd.service > /dev/null
+systemctl restart snmpd
+
 exit 0
