@@ -13,14 +13,14 @@ build:
 	# Using pre-built dist, uncomment the line below to rebuild
 	#cd $(NBOXUI_HOME); make build
 	dpkg-buildpackage -rfakeroot -d -us -uc
-	dpkg-sig --sign builder -k D1EB60BE ../nboxui*deb
+	dpkg-sig --sign builder -k D1EB60BE ./nboxui*deb
 	@\rm -f ../nboxui*dsc ../nboxui*.gz ../nboxui*changes
 	@/bin/mv ../nboxui*deb .
 	@echo
 	@echo "Package built."
-	@/bin/ls nboxui*deb
+	@/bin/ls ./nboxui*deb
 	@echo "-------------------------------"
-	-dpkg --contents nboxui*deb
+	-dpkg --contents ./nboxui*deb
 	@echo "-------------------------------"
 
 distclean:

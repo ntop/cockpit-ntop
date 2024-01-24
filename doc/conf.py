@@ -23,7 +23,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'nBox UI'
-copyright = u'2023, ntop.org'
+copyright = u'2024, ntop.org'
 author = u'ntop.org'
 
 # The version info for the project you're documenting, acts as replacement for
