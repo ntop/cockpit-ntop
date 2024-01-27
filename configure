@@ -614,6 +614,7 @@ PACKAGE_URL=''
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+SIGN_CMD
 RPM_SIGN_CMD
 EXTRA_DEPS
 GIT_REVISION
@@ -3126,6 +3127,13 @@ fi
 `git submodule update --remote`
 
 EXTRA_DEPS=""
+
+if test -f /usr/bin/debsigs; then
+  SIGN_CMD="debsigs"
+else
+  SIGN_CMD="dpkg-sig"
+fi
+
 
 
 
